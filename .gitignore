@@ -1,3 +1,9 @@
+__history
+*.~*
+*.local
+ScrSvr.stat
+ScrSvr.dsk
+
 # Compiled Object files
 *.slo
 *.lo
