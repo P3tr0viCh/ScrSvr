@@ -52,6 +52,7 @@
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
+        <OutputExt>scr</OutputExt>
         <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <AllPackageLibs>rtl.lib;vcl.lib</AllPackageLibs>
         <ProjectType>CppVCLApplication</ProjectType>
@@ -73,7 +74,8 @@
         <ILINK_TranslatedLibraryPath>$(BDSLIB)\$(PLATFORM)\release\$(LANGDIR);$(ILINK_TranslatedLibraryPath)</ILINK_TranslatedLibraryPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <OutputExt>scr</OutputExt>
+        <UsePackages>false</UsePackages>
+        <DynamicRTL>false</DynamicRTL>
         <Debugger_RunParams>/s</Debugger_RunParams>
         <VerInfo_Keys>CompanyName=П3тр0виЧъ;FileDescription=Программа-заставка &quot;Дата и время&quot;;FileVersion=1.0.0.0;InternalName=ScrSvr.exe;LegalCopyright=© П3тр0виЧъ;LegalTrademarks=П3тр0виЧъ;OriginalFilename=ScrSvr.exe;ProductName=Программа-заставка &quot;Дата и время&quot;;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <IncludePath>$(BDSINCLUDE)\windows\vcl;$(IncludePath)</IncludePath>
@@ -115,8 +117,6 @@
         <VerInfo_Keys>CompanyName=П3тр0виЧъ;FileDescription=Программа-заставка &quot;Дата и время&quot;;FileVersion=1.0.0.0;InternalName=ScrSvr.exe;LegalCopyright=© П3тр0виЧъ;LegalTrademarks=П3тр0виЧъ;OriginalFilename=ScrSvr.exe;ProductName=Программа-заставка &quot;Дата и время&quot;;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <IntermediateOutputDir>c:\Program Files (x86)\Embarcadero\RAD Studio\10.0\Projects\ScrSvr\$(Platform)\$(Config)</IntermediateOutputDir>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <UsePackages>false</UsePackages>
-        <DynamicRTL>false</DynamicRTL>
         <LinkPackageStatics>rtl.lib;vcl.lib</LinkPackageStatics>
         <FinalOutputDir>c:\Program Files (x86)\Embarcadero\RAD Studio\10.0\Projects\ScrSvr\$(Platform)\$(Config)</FinalOutputDir>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
@@ -126,8 +126,8 @@
         <TASM_Debugging>None</TASM_Debugging>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <LinkPackageStatics>rtl.lib;vcl.lib</LinkPackageStatics>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <LinkPackageImports>rtl.bpi;vcl.bpi</LinkPackageImports>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=П3тр0виЧъ;FileDescription=Программа-заставка &quot;Дата и время&quot;;FileVersion=1.0.0.0;InternalName=ScrSvr.exe;LegalCopyright=© П3тр0виЧъ;LegalTrademarks=П3тр0виЧъ;OriginalFilename=ScrSvr.exe;ProductName=Программа-заставка &quot;Дата и время&quot;;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
     </PropertyGroup>
@@ -610,13 +610,13 @@
                         <Operation>1</Operation>
                     </Platform>
                 </DeployClass>
-                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
+                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Android" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="Win32" Name="$(PROJECTNAME)"/>
                 <ProjectRoot Platform="iOSDevice64" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="Win64" Name="$(PROJECTNAME)"/>
+                <ProjectRoot Platform="iOSSimulator" Name="$(PROJECTNAME).app"/>
                 <ProjectRoot Platform="OSX32" Name="$(PROJECTNAME).app"/>
-                <ProjectRoot Platform="iOSDevice32" Name="$(PROJECTNAME).app"/>
             </Deployment>
             <Platforms>
                 <Platform value="Win32">True</Platform>
