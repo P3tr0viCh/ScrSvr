@@ -1,4 +1,6 @@
 __history
+__astcache
+__recovery
 *.~*
 *.local
 ScrSvr.stat

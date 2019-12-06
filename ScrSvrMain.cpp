@@ -5,6 +5,9 @@
 
 #include <Vcl.Graphics.hpp>
 
+#include "UtilsFiles.h"
+#include "UtilsFileIni.h"
+
 #include "ScrSvrMain.h"
 // ---------------------------------------------------------------------------
 #pragma package(smart_init)
@@ -38,8 +41,9 @@ bool TMain::CheckMessage(tagMSG &Msg) {
 }
 
 void __fastcall TMain::AppOnMessage(tagMSG &Msg, bool &Handled) {
-	if (CheckMessage(Msg))
+	if (CheckMessage(Msg)) {
 		Close();
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -58,15 +62,32 @@ void __fastcall TMain::FormCreate(TObject *Sender) {
 	TimeFont = new TFont;
 	DateFont = new TFont;
 
-	TimeFont->Color = clYellow;
-	TimeFont->Name = "Arial";
-	TimeFont->Size = 100;
 	TimeFont->Quality = TFontQuality::fqAntialiased;
-
-	DateFont->Color = 0x0001B9FE;
-	DateFont->Name = "Arial";
-	DateFont->Size = 36;
 	DateFont->Quality = TFontQuality::fqAntialiased;
+
+	String FileNameIni = IncludeTrailingPathDelimiter
+		(IncludeTrailingPathDelimiter(GetSpecialFolderPath(CSIDL_LOCAL_APPDATA))
+		+ "P3tr0viCh");
+
+	FileNameIni = FileNameIni + ChangeFileExt
+		(ExtractFileName(Application->ExeName), ".ini");
+
+	TFileIni * FileIni = TFileIni::GetNewInstance(FileNameIni);
+
+	try {
+		Color = FileIni->ReadInteger("Common", "BackColor", Color);
+
+		DateFont->Color = FileIni->ReadInteger("Date", "FontColor", 0x0001B9FE);
+		DateFont->Name = FileIni->ReadString("Date", "FontName", "Arial");
+		DateFont->Size = FileIni->ReadInteger("Date", "FontSize", 36);
+
+		TimeFont->Color = FileIni->ReadInteger("Time", "FontColor", clYellow);
+		TimeFont->Name = FileIni->ReadString("Time", "FontName", "Arial");
+		TimeFont->Size = FileIni->ReadInteger("Time", "FontSize", 100);
+	}
+	__finally {
+		delete FileIni;
+	}
 
 	GetCursorPos(&CursorStartPoint);
 
@@ -196,7 +217,7 @@ void TMain::UpdateScreen() {
 	}
 
 	Bitmap->Canvas->Brush->Style = bsSolid;
-	Bitmap->Canvas->Brush->Color = clBlack;
+	Bitmap->Canvas->Brush->Color = Color;
 
 	Bitmap->Canvas->FillRect(Bitmap->Canvas->ClipRect);
 

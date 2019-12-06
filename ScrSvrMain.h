@@ -25,7 +25,7 @@ __published: // IDE-managed Components
 private:
 	TPoint CursorStartPoint;
 
-	TBitmap* Bitmap;
+	TBitmap * Bitmap;
 
 	int TextLeft, TextTop, TextHeight, TextWidth;
 	int TimeHeight, TimeWidth, TimeTop, TimeLeft;
@@ -33,8 +33,8 @@ private:
 
 	String sTime, sDate;
 
-	TFont* TimeFont;
-	TFont* DateFont;
+	TFont * TimeFont;
+	TFont * DateFont;
 
 	TSystemTime DateTime;
 

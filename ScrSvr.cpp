@@ -6,6 +6,9 @@
 
 #include <windows.h>
 
+#include "UtilsFiles.h"
+#include "UtilsFileIni.h"
+
 // ---------------------------------------------------------------------------
 USEFORM("ScrSvrMain.cpp", Main);
 
@@ -15,27 +18,59 @@ bool AlreadyRun() {
 }
 
 void ShowOptions(String sWnd) {
-	HWND Handle;
+//	HWND Handle;
+//
+//	if (sWnd == NULL || sWnd.IsEmpty()) {
+//		Handle = 0;
+//	}
+//	else {
+//		try {
+//			Handle = (HWND) StrToInt(sWnd);
+//		}
+//		catch (...) {
+//			Handle = 0;
+//		}
+//	}
 
-	if (sWnd == NULL || sWnd.IsEmpty())
-		Handle = 0;
-	else {
+	String FileNameIni = IncludeTrailingPathDelimiter
+		(IncludeTrailingPathDelimiter(GetSpecialFolderPath(CSIDL_LOCAL_APPDATA))
+		+ "P3tr0viCh");
+
+	if (!DirectoryExists(FileNameIni)) {
+		CreateDir(FileNameIni);
+	}
+
+	FileNameIni = FileNameIni + ChangeFileExt(ExtractFileName(Application->ExeName),
+		".ini");
+
+	if (!FileExists(FileNameIni)) {
+		TFileIni * FileIni = TFileIni::GetNewInstance(FileNameIni);
+
 		try {
-			Handle = (HWND) StrToInt(sWnd);
+			FileIni->WriteInteger("Common", "BackColor", clBlack);
+
+			FileIni->WriteInteger("Date", "FontColor", 0x0001B9FE);
+			FileIni->WriteString("Date", "FontName", "Arial");
+			FileIni->WriteInteger("Date", "FontSize", 36);
+
+			FileIni->WriteInteger("Time", "FontColor", clYellow);
+			FileIni->WriteString("Time", "FontName", "Arial");
+			FileIni->WriteInteger("Time", "FontSize", 100);
 		}
-		catch (...) {
-			Handle = 0;
+		__finally {
+			delete FileIni;
 		}
 	}
-	MessageBox(Handle, L"Ёта заставка не имеет настраиваемых параметров",
-		L"ѕрограмма-заставка", MB_OK | MB_ICONEXCLAMATION);
+
+	ShellExec(FileNameIni);
 };
 
 // ---------------------------------------------------------------------------
 int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int) {
 	try {
-		if (AlreadyRun())
+		if (AlreadyRun()) {
 			return 0;
+		}
 
 		Application->Initialize();
 		Application->MainFormOnTaskBar = false;
@@ -48,12 +83,15 @@ int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int) {
 				Application->CreateForm(__classid(TMain), &Main);
 				Application->Run();
 			}
-			else if (S.SubString(1, 2) == "/C") {
-				ShowOptions(S.SubString(4, MAXINT));
+			else {
+				if (S.SubString(1, 2) == "/C") {
+					ShowOptions(S.SubString(4, MAXINT));
+				}
 			}
 		}
-		else
+		else {
 			ShowOptions(NULL);
+		}
 
 	}
 	catch (Exception &exception) {
@@ -67,6 +105,7 @@ int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int) {
 			Application->ShowException(&exception);
 		}
 	}
+
 	return 0;
 }
 // ---------------------------------------------------------------------------
