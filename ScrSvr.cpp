@@ -11,26 +11,26 @@
 
 // ---------------------------------------------------------------------------
 USEFORM("ScrSvrMain.cpp", Main);
-
-// ---------------------------------------------------------------------------
+USEFORM("ScrSvrScreen.cpp", frmScreen);
+//---------------------------------------------------------------------------
 bool AlreadyRun() {
 	return FindWindow(TEXT("TApplication"), TEXT("Заставка")) != 0;
 }
 
 void ShowOptions(String sWnd) {
-//	HWND Handle;
-//
-//	if (sWnd == NULL || sWnd.IsEmpty()) {
-//		Handle = 0;
-//	}
-//	else {
-//		try {
-//			Handle = (HWND) StrToInt(sWnd);
-//		}
-//		catch (...) {
-//			Handle = 0;
-//		}
-//	}
+	// HWND Handle;
+	//
+	// if (sWnd == NULL || sWnd.IsEmpty()) {
+	// Handle = 0;
+	// }
+	// else {
+	// try {
+	// Handle = (HWND) StrToInt(sWnd);
+	// }
+	// catch (...) {
+	// Handle = 0;
+	// }
+	// }
 
 	String FileNameIni = IncludeTrailingPathDelimiter
 		(IncludeTrailingPathDelimiter(GetSpecialFolderPath(CSIDL_LOCAL_APPDATA))
@@ -40,8 +40,8 @@ void ShowOptions(String sWnd) {
 		CreateDir(FileNameIni);
 	}
 
-	FileNameIni = FileNameIni + ChangeFileExt(ExtractFileName(Application->ExeName),
-		".ini");
+	FileNameIni = FileNameIni + ChangeFileExt
+		(ExtractFileName(Application->ExeName), ".ini");
 
 	if (!FileExists(FileNameIni)) {
 		TFileIni * FileIni = TFileIni::GetNewInstance(FileNameIni);
@@ -73,6 +73,7 @@ int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int) {
 		}
 
 		Application->Initialize();
+		Application->ShowMainForm = false;
 		Application->MainFormOnTaskBar = false;
 		Application->Title = "Заставка";
 
@@ -81,7 +82,7 @@ int WINAPI _tWinMain(HINSTANCE, HINSTANCE, LPTSTR, int) {
 
 			if (S == "/S") {
 				Application->CreateForm(__classid(TMain), &Main);
-				Application->Run();
+		Application->Run();
 			}
 			else {
 				if (S.SubString(1, 2) == "/C") {

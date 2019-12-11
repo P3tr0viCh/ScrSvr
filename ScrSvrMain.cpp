@@ -5,6 +5,7 @@
 
 #include <Vcl.Graphics.hpp>
 
+#include "UtilsDate.h"
 #include "UtilsFiles.h"
 #include "UtilsFileIni.h"
 
@@ -57,8 +58,6 @@ void __fastcall TMain::FormCreate(TObject *Sender) {
 
 	Randomize();
 
-	Bitmap = new TBitmap;
-
 	TimeFont = new TFont;
 	DateFont = new TFont;
 
@@ -75,13 +74,15 @@ void __fastcall TMain::FormCreate(TObject *Sender) {
 	TFileIni * FileIni = TFileIni::GetNewInstance(FileNameIni);
 
 	try {
-		Color = FileIni->ReadInteger("Common", "BackColor", Color);
+		Color = TColor(FileIni->ReadInteger("Common", "BackColor", Color));
 
-		DateFont->Color = FileIni->ReadInteger("Date", "FontColor", 0x0001B9FE);
+		DateFont->Color =
+			TColor(FileIni->ReadInteger("Date", "FontColor", 0x0001B9FE));
 		DateFont->Name = FileIni->ReadString("Date", "FontName", "Arial");
 		DateFont->Size = FileIni->ReadInteger("Date", "FontSize", 36);
 
-		TimeFont->Color = FileIni->ReadInteger("Time", "FontColor", clYellow);
+		TimeFont->Color =
+			TColor(FileIni->ReadInteger("Time", "FontColor", clYellow));
 		TimeFont->Name = FileIni->ReadString("Time", "FontName", "Arial");
 		TimeFont->Size = FileIni->ReadInteger("Time", "FontSize", 100);
 	}
@@ -95,8 +96,18 @@ void __fastcall TMain::FormCreate(TObject *Sender) {
 
 	ShowCursor(false);
 
-	UpdatePosition();
-	UpdateScreen();
+	for (int i = 0; i < Screen->MonitorCount; i++) {
+		ScreenForms.push_back(new TfrmScreen(this));
+
+		SetWindowPos(ScreenForms[i]->Handle, HWND_TOP,
+			Screen->Monitors[i]->Left, Screen->Monitors[i]->Top,
+			Screen->Monitors[i]->Width, Screen->Monitors[i]->Height,
+			SWP_SHOWWINDOW);
+	}
+
+	UpdatePositions();
+	UpdateDateTime();
+	UpdateScreens();
 
 	TimerDateTime->Enabled = true;
 	TimerPosition->Enabled = true;
@@ -112,134 +123,48 @@ void __fastcall TMain::FormDestroy(TObject *Sender) {
 	delete DateFont;
 	delete TimeFont;
 
-	delete Bitmap;
+	for (std::vector<TfrmScreen*>::iterator ScreenForm = ScreenForms.begin(),
+		end = ScreenForms.end(); ScreenForm != end; ++ScreenForm) {
+		delete *ScreenForm;
+	}
+	ScreenForms.clear();
 
 	ShowCursor(true);
 }
 
 // ---------------------------------------------------------------------------
-void __fastcall TMain::FormResize(TObject *Sender) {
-	Bitmap->Width = ClientWidth;
-	Bitmap->Height = ClientHeight;
-}
-
-// ---------------------------------------------------------------------------
 void __fastcall TMain::TimerDateTimeTimer(TObject *Sender) {
-	UpdateScreen();
+	UpdateDateTime();
+
+	UpdateScreens();
 }
 
 // ---------------------------------------------------------------------------
 void __fastcall TMain::TimerPositionTimer(TObject *Sender) {
-	UpdatePosition();
+	UpdatePositions();
 }
 
 // ---------------------------------------------------------------------------
-void TMain::UpdatePosition() {
-	TextLeft = LeftRight + Random(Width - TextWidth - 2 * LeftRight);
-	TextTop = TopBottom + Random(Height - TextHeight - 2 * TopBottom);
-}
-
-String FormatDate(String Format, TSystemTime SystemTime) {
-	LPCTSTR lpFormat;
-	DWORD Flags;
-	WCHAR Buffer[255];
-
-	if (Format == NULL || Format.IsEmpty()) {
-		lpFormat = NULL;
-		Flags = DATE_LONGDATE;
-	}
-	else {
-		lpFormat = Format.w_str();
-		Flags = 0;
-	}
-
-	GetDateFormat(LOCALE_USER_DEFAULT, Flags, &SystemTime, lpFormat, Buffer,
-		sizeof(Buffer));
-
-	return Buffer;
-}
-
-String FormatTime(String Format, TSystemTime SystemTime) {
-	LPCTSTR lpFormat;
-	DWORD Flags;
-	WCHAR Buffer[255];
-
-	Flags = 0;
-	if (Format == NULL || Format.IsEmpty())
-		lpFormat = NULL;
-	else
-		lpFormat = Format.w_str();
-
-	GetTimeFormat(LOCALE_USER_DEFAULT, Flags, &SystemTime, lpFormat, Buffer,
-		sizeof(Buffer));
-
-	return Buffer;
-}
-
-void TMain::UpdateScreen() {
+void TMain::UpdateDateTime() {
 	GetLocalTime(&DateTime);
 
 	sTime = FormatTime("HH':'mm':'ss", DateTime);
 	sDate = FormatDate("d' 'MMMM', 'dddd", DateTime);
-
-	Bitmap->Canvas->Font->Assign(TimeFont);
-	TextSize = Bitmap->Canvas->TextExtent(sTime);
-	TimeWidth = TextSize.cx;
-	TimeHeight = TextSize.cy;
-
-	Bitmap->Canvas->Font->Assign(DateFont);
-	TextSize = Bitmap->Canvas->TextExtent(sDate);
-	DateWidth = TextSize.cx;
-	DateHeight = TextSize.cy;
-
-	TextHeight = TimeHeight + DateHeight + 10;
-	if ((TextTop + TextHeight + TopBottom) > Height)
-		TextTop = Height - TextHeight - TopBottom;
-
-	TimeTop = TextTop;
-	DateTop = TextTop + TimeHeight + 10;
-
-	if (DateWidth > TimeWidth)
-		TextWidth = DateWidth;
-	else
-		TextWidth = TimeWidth;
-
-	if ((TextLeft + TextWidth + LeftRight) > Width)
-		TextLeft = Width - TextWidth - LeftRight;
-
-	if (DateWidth > TimeWidth) {
-		DateLeft = TextLeft;
-		TimeLeft = TextLeft + ((TextWidth - TimeWidth) / 2);
-	}
-	else {
-		TimeLeft = TextLeft;
-		DateLeft = TextLeft + ((TextWidth - DateWidth) / 2);
-	}
-
-	Bitmap->Canvas->Brush->Style = bsSolid;
-	Bitmap->Canvas->Brush->Color = Color;
-
-	Bitmap->Canvas->FillRect(Bitmap->Canvas->ClipRect);
-
-	Bitmap->Canvas->Font->Assign(TimeFont);
-	Bitmap->Canvas->TextOut(TimeLeft, TimeTop, sTime);
-
-	Bitmap->Canvas->Font->Assign(DateFont);
-	Bitmap->Canvas->TextOut(DateLeft, DateTop, sDate);
-
-#ifdef _DEBUG
-	Bitmap->Canvas->Brush->Color = clWhite;
-
-	Bitmap->Canvas->FrameRect(Rect(LeftRight, TopBottom, Width - LeftRight,
-		Height - TopBottom));
-
-	Bitmap->Canvas->FrameRect(Rect(TimeLeft, TimeTop, TimeLeft + TimeWidth,
-		TimeTop + TimeHeight));
-
-	Bitmap->Canvas->FrameRect(Rect(DateLeft, DateTop, DateLeft + DateWidth,
-		DateTop + DateHeight));
-#endif
-
-	BitBlt(Canvas->Handle, 0, 0, Width, Height, Bitmap->Canvas->Handle, 0, 0,
-		SRCCOPY);
 }
+
+// ---------------------------------------------------------------------------
+void TMain::UpdatePositions() {
+	for (std::vector<TfrmScreen*>::iterator ScreenForm = ScreenForms.begin(),
+		end = ScreenForms.end(); ScreenForm != end; ++ScreenForm) {
+		(*ScreenForm)->UpdatePosition();
+	}
+}
+
+// ---------------------------------------------------------------------------
+void TMain::UpdateScreens() {
+	for (std::vector<TfrmScreen*>::iterator ScreenForm = ScreenForms.begin(),
+		end = ScreenForms.end(); ScreenForm != end; ++ScreenForm) {
+		(*ScreenForm)->UpdateScreen();
+	}
+}
+// ---------------------------------------------------------------------------

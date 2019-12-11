@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------
 
-#ifndef ScrSvrMainH
-#define ScrSvrMainH
+#ifndef ScrSvrScreenH
+#define ScrSvrScreenH
 // ---------------------------------------------------------------------------
 #include <System.Classes.hpp>
 #include <Vcl.Controls.hpp>
@@ -9,50 +9,32 @@
 #include <Vcl.Forms.hpp>
 #include <Vcl.ExtCtrls.hpp>
 
-#include <vector>
-
-#include "ScrSvrScreen.h"
-
 // ---------------------------------------------------------------------------
-class TMain : public TForm {
+class TfrmScreen : public TForm {
 __published: // IDE-managed Components
 
-	TTimer *TimerDateTime;
-	TTimer *TimerPosition;
-
+	void __fastcall FormResize(TObject *Sender);
 	void __fastcall FormCreate(TObject *Sender);
 	void __fastcall FormDestroy(TObject *Sender);
-	void __fastcall TimerDateTimeTimer(TObject *Sender);
-	void __fastcall TimerPositionTimer(TObject *Sender);
 
 private:
-	TPoint CursorStartPoint;
 
-	TSystemTime DateTime;
+	TBitmap * Bitmap;
 
-	bool CheckMessage(tagMSG &Msg);
-	void __fastcall AppOnMessage(tagMSG &Msg, bool &Handled);
+	TSize TextSize;
 
-	void UpdateDateTime();
-
-	void UpdatePositions();
-	void UpdateScreens();
+	int TextLeft, TextTop, TextHeight, TextWidth;
+	int TimeHeight, TimeWidth, TimeTop, TimeLeft;
+	int DateHeight, DateWidth, DateTop, DateLeft;
 
 public:
-	int MaxMouseMove;
-	int LeftRight, TopBottom;
+	__fastcall TfrmScreen(TComponent* Owner);
 
-	String sTime, sDate;
-
-	TFont * TimeFont;
-	TFont * DateFont;
-
-	std::vector<TfrmScreen*>ScreenForms;
-
-	__fastcall TMain(TComponent* Owner);
+	void UpdatePosition();
+	void UpdateScreen();
 };
 
 // ---------------------------------------------------------------------------
-extern PACKAGE TMain *Main;
+extern PACKAGE TfrmScreen *frmScreen;
 // ---------------------------------------------------------------------------
 #endif
